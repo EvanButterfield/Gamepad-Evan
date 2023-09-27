@@ -109,10 +109,10 @@ init_gamepad :: () {
     gamepads[it].left_stick_rotation_angle = 0.0;
     gamepads[it].right_stick_rotation_angle = 0.0;
     
-    gamepads[it].left_stick_deadzone = 0.0;          // @@ Not implemented. See disabled code below.
-    gamepads[it].right_stick_deadzone = 0.0;
-    gamepads[it].left_trigger_deadzone = 0.0;
-    gamepads[it].right_trigger_deadzone = 0.0;
+    gamepads[it].left_stick_deadzone = 0.05;          // @@ Not implemented. See disabled code below.
+    gamepads[it].right_stick_deadzone = 0.05;
+    gamepads[it].left_trigger_deadzone = 0.05;
+    gamepads[it].right_trigger_deadzone = 0.05;
     
     // Threshold used to generate digital events.
     gamepads[it].left_stick_threshold = 0.5;
@@ -126,12 +126,27 @@ init_gamepad :: () {
 update_gamepads :: () {
   
   for 0..(gamepads_connected-1) {
-    if !gamepads[it].connected return;
+    using gamepad := *gamepads[it];
+    if !gamepad.connected return;
     
 #if OS == .WINDOWS
     {
       // This expects update_window_events to reset the button flags.
       xinput_update_gamepad(it);
+    }
+    
+    if gamepad.left_stick.x < gamepad.left_stick_deadzone && gamepad.left_stick.x > -gamepad.left_stick_deadzone {
+      gamepad.left_stick.x = 0;
+    }
+    if gamepad.left_stick.y < gamepad.left_stick_deadzone && gamepad.left_stick.y > -gamepad.left_stick_deadzone {
+      gamepad.left_stick.y = 0;
+    }
+    
+    if gamepad.right_stick.x < gamepad.right_stick_deadzone && gamepad.right_stick.x > -gamepad.right_stick_deadzone {
+      gamepad.right_stick.x = 0;
+    }
+    if gamepad.right_stick.y < gamepad.right_stick_deadzone && gamepad.right_stick.y > -gamepad.right_stick_deadzone {
+      gamepad.right_stick.y = 0;
     }
   }
 }
